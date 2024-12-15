@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -8,6 +9,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<VerifyOTP>(_onVerifyOTP);
     on<UpdateUserProfile>(_onUpdateUserProfile);
     on<SignOut>(_onSignOut);
+    on<LoadUserFromStorage>(_onLoadUserFromStorage); // New Event
   }
 
   Future<void> _onSendPhoneNumberVerification(
@@ -16,8 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(state.copyWith(isLoading: true, error: null));
-      // TODO: Implement actual phone verification logic
-      // For now, we'll just simulate the process
+      // Simulate phone number verification process
       await Future.delayed(const Duration(seconds: 2));
       emit(state.copyWith(
         isLoading: false,
@@ -37,13 +38,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(state.copyWith(isLoading: true, error: null));
-      // TODO: Implement actual OTP verification logic
-      // For now, we'll just simulate the process
+      // Simulate OTP verification process
       await Future.delayed(const Duration(seconds: 2));
+
+      // Generate a mock `userId` (Replace with real logic)
+      final userId = 'USER_${DateTime.now().millisecondsSinceEpoch}';
+
+      // Save userId locally
+      await _saveUserIdToStorage(userId);
+
       emit(state.copyWith(
         isLoading: false,
         isAuthenticated: true,
-        userId: 'USER_${DateTime.now().millisecondsSinceEpoch}',
+        userId: userId,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -59,8 +66,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(state.copyWith(isLoading: true, error: null));
-      // TODO: Implement actual profile update logic
+      // Simulate profile update process
       await Future.delayed(const Duration(seconds: 1));
+
       emit(state.copyWith(
         isLoading: false,
         userCategory: event.userCategory,
@@ -80,6 +88,50 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     SignOut event,
     Emitter<AuthState> emit,
   ) async {
+    // Clear local storage
+    await _clearUserIdFromStorage();
     emit(const AuthState());
   }
-} 
+
+  Future<void> _onLoadUserFromStorage(
+    LoadUserFromStorage event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(isLoading: true));
+      final userId = await _getUserIdFromStorage();
+
+      if (userId != null) {
+        emit(state.copyWith(
+          isAuthenticated: true,
+          userId: userId,
+          isLoading: false,
+        ));
+      } else {
+        emit(state.copyWith(isLoading: false));
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
+    }
+  }
+
+  // Helper methods to interact with SharedPreferences
+
+  Future<void> _saveUserIdToStorage(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', userId);
+  }
+
+  Future<String?> _getUserIdFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userId');
+  }
+
+  Future<void> _clearUserIdFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
+  }
+}

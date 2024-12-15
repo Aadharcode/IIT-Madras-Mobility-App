@@ -69,7 +69,9 @@ class LocationUpdated extends TripEvent {
   List<Object> get props => [location];
 }
 
-class IdleTimeout extends TripEvent {}
+class IdleTimeout extends TripEvent {
+  const IdleTimeout();
+}
 
 class LoadPastTrips extends TripEvent {
   final String userId;
@@ -78,4 +80,11 @@ class LoadPastTrips extends TripEvent {
 
   @override
   List<Object> get props => [userId];
-} 
+}
+
+class ResetTripState extends TripEvent {
+  const ResetTripState();
+
+  @override
+  List<Object?> get props => [];
+}

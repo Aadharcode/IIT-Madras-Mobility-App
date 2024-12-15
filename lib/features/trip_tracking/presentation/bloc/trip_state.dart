@@ -12,8 +12,12 @@ class TripState extends Equatable {
   final LatLng? currentLocation;
   final Set<Marker> markers;
   final Set<Circle> monumentZones;
+  final bool isIdle;
+  final int? idleCountdown;
 
   const TripState({
+    this.isIdle = false,
+    this.idleCountdown,
     this.currentTrip,
     this.pastTrips = const [],
     this.isTracking = false,
@@ -33,6 +37,8 @@ class TripState extends Equatable {
     LatLng? currentLocation,
     Set<Marker>? markers,
     Set<Circle>? monumentZones,
+    bool? isIdle,
+    int? idleCountdown,
   }) {
     return TripState(
       currentTrip: currentTrip ?? this.currentTrip,
@@ -43,6 +49,8 @@ class TripState extends Equatable {
       currentLocation: currentLocation ?? this.currentLocation,
       markers: markers ?? this.markers,
       monumentZones: monumentZones ?? this.monumentZones,
+      isIdle: isIdle ?? this.isIdle,
+      idleCountdown: idleCountdown ?? this.idleCountdown,
     );
   }
 
@@ -56,5 +64,7 @@ class TripState extends Equatable {
         currentLocation,
         markers,
         monumentZones,
+        isIdle,
+        idleCountdown,
       ];
 } 

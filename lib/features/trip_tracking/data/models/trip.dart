@@ -30,6 +30,8 @@ class Trip extends Equatable {
   final TripPurpose? purpose;
   final int? occupancy;
   final bool isActive;
+  final DateTime? lastCheckpointTime;
+  final String? lastKnownPosition;
 
   const Trip({
     required this.id,
@@ -43,6 +45,8 @@ class Trip extends Equatable {
     this.purpose,
     this.occupancy,
     this.isActive = true,
+    this.lastCheckpointTime,
+    this.lastKnownPosition,
   });
 
   Trip copyWith({
@@ -57,6 +61,8 @@ class Trip extends Equatable {
     TripPurpose? purpose,
     int? occupancy,
     bool? isActive,
+    DateTime? lastCheckpointTime,
+    String? lastKnownPosition,
   }) {
     return Trip(
       id: id ?? this.id,
@@ -70,6 +76,8 @@ class Trip extends Equatable {
       purpose: purpose ?? this.purpose,
       occupancy: occupancy ?? this.occupancy,
       isActive: isActive ?? this.isActive,
+      lastCheckpointTime: lastCheckpointTime ?? this.lastCheckpointTime,
+      lastKnownPosition: lastKnownPosition ?? this.lastKnownPosition,
     );
   }
 
@@ -86,6 +94,8 @@ class Trip extends Equatable {
       'purpose': purpose?.index,
       'occupancy': occupancy,
       'isActive': isActive,
+      'lastCheckpointTime': lastCheckpointTime?.toIso8601String(),
+      'lastKnownPosition': lastKnownPosition,
     };
   }
 
@@ -107,6 +117,10 @@ class Trip extends Equatable {
           json['purpose'] != null ? TripPurpose.values[json['purpose']] : null,
       occupancy: json['occupancy'],
       isActive: json['isActive'],
+       lastCheckpointTime: json['lastCheckpointTime'] != null
+          ? DateTime.parse(json['lastCheckpointTime'])
+          : null,
+      lastKnownPosition: json['lastKnownPosition'],
     );
   }
 

@@ -13,6 +13,9 @@ class TripBloc extends Bloc<TripEvent, TripState> {
   final LocationService _locationService;
   StreamSubscription<Position>? _locationSubscription;
   StreamSubscription<Monument>? _monumentSubscription;
+  Timer? _idleTimer;
+  Timer? _displayTimer;
+  int _idleCounter = 0;
   final _uuid = const Uuid();
 
   TripBloc({required LocationService locationService})
@@ -25,6 +28,7 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     on<LocationUpdated>(_onLocationUpdated);
     on<IdleTimeout>(_onIdleTimeout);
     on<LoadPastTrips>(_onLoadPastTrips);
+    on<ResetTripState>(_onResetTripState); 
 
     _initializeLocationTracking();
   }
@@ -56,6 +60,8 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     _locationService.startLocationTracking();
   }
 
+  
+
   Future<void> _onStartTrip(
     StartTrip event,
     Emitter<TripState> emit,
@@ -80,7 +86,7 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     ));
   }
 
-  Future<void> _onEndTrip(
+ Future<void> _onEndTrip(
     EndTrip event,
     Emitter<TripState> emit,
   ) async {
@@ -94,25 +100,26 @@ class TripBloc extends Bloc<TripEvent, TripState> {
 
       // Get the current trip with all its details
       final currentTrip = state.currentTrip!;
-      
       final endedTrip = currentTrip.copyWith(
         endTime: DateTime.now(),
         endMonumentId: event.endMonument.id,
         isActive: false,
       );
 
-      // Add a small delay to show loading state
+      // Simulate saving trip to a database (adjust as per your backend)
       await Future.delayed(const Duration(milliseconds: 500));
+      // TODO: Replace with actual save logic (e.g., API call)
 
-      // Reset all trip-related state
+      // Add the completed trip to the pastTrips list
       emit(state.copyWith(
         currentTrip: null,
         pastTrips: [...state.pastTrips, endedTrip],
         isTracking: false,
         isLoading: false,
-        error: null,
-        currentLocation: state.currentLocation, // Preserve current location
       ));
+
+      // Automatically reset the trip state after completing the trip
+      add(ResetTripState());
     } catch (e) {
       emit(state.copyWith(
         isLoading: false,
@@ -120,6 +127,21 @@ class TripBloc extends Bloc<TripEvent, TripState> {
       ));
     }
   }
+
+Future<void> _onResetTripState(
+  ResetTripState event,
+  Emitter<TripState> emit,
+) async {
+  // Reset trip-related state while preserving current location
+  emit(state.copyWith(
+    currentTrip: null,
+    isTracking: false,
+    error: null,
+    isLoading: false,
+    currentLocation: state.currentLocation,
+  ));
+}
+
 
   Future<void> _onUpdateTripDetails(
     UpdateTripDetails event,

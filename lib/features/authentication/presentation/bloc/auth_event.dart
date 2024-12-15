@@ -39,4 +39,6 @@ class UpdateUserProfile extends AuthEvent {
   List<Object> get props => [userCategory, residenceType];
 }
 
-class SignOut extends AuthEvent {} 
+class SignOut extends AuthEvent {}
+
+class LoadUserFromStorage extends AuthEvent {} // New Event
