@@ -31,28 +31,40 @@ class _TripTrackingScreenState extends State<TripTrackingScreen> {
     _initializeMonuments();
   }
 
-  void _initializeMonuments() {
-    for (final monument in sampleMonuments) {
-      _monumentZones.add(
-        Circle(
-          circleId: CircleId(monument.id),
-          center: monument.position,
-          radius: monument.radius,
-          fillColor: Colors.blue.withOpacity(0.15),
-          strokeColor: Colors.blue.withOpacity(0.5),
-          strokeWidth: 2,
-        ),
-      );
-      _markers.add(
-        Marker(
-          markerId: MarkerId(monument.id),
-          position: monument.position,
-          infoWindow: InfoWindow(title: monument.name),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-        ),
-      );
-    }
+  void _initializeMonuments() async {
+  for (final monument in sampleMonuments) {
+    final marker = Marker(
+      markerId: MarkerId(monument.id),
+      position: monument.position,
+      infoWindow: InfoWindow(
+        title: monument.name,
+        snippet: 'Radius: ${monument.radius.toStringAsFixed(1)}m', // Add more details here
+      ),
+      // icon: await BitmapDescriptor.fromAssetImage(
+      //   const ImageConfiguration(size: Size(48, 48)),
+      //   'assets/icons/monument_marker.png', // Use a custom marker icon
+      // ),
+      onTap: () {
+        _mapController?.showMarkerInfoWindow(MarkerId(monument.id));
+      },
+    );
+    _markers.add(marker);
+
+    // Add corresponding circle for the monument zone
+    _monumentZones.add(
+      Circle(
+        circleId: CircleId(monument.id),
+        center: monument.position,
+        radius: monument.radius,
+        fillColor: Colors.blue.withOpacity(0.15),
+        strokeColor: Colors.blue.withOpacity(0.5),
+        strokeWidth: 2,
+      ),
+    );
   }
+  setState(() {}); // Refresh UI to display the updated markers and circles
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -94,12 +106,12 @@ class _TripTrackingScreenState extends State<TripTrackingScreen> {
                 onMapCreated: (controller) {
                   _mapController = controller;
                   controller.setMapStyle('''[
-                    {
-                      "featureType": "poi",
-                      "elementType": "labels",
-                      "stylers": [{"visibility": "off"}]
-                    }
-                  ]''');
+                      {
+                        "featureType": "poi",
+                        "elementType": "labels",
+                        "stylers": [{"visibility": "off"}]
+                      }
+                    ]''');
                 },
               ),
               SafeArea(
@@ -111,6 +123,7 @@ class _TripTrackingScreenState extends State<TripTrackingScreen> {
                     if (state.isLoading)
                       const Center(child: CircularProgressIndicator())
                     else if (!state.isTracking && state.currentTrip == null)
+                    const Center(child: Text('No trip selected')),
                       _buildStartTripButton(theme),
                   ],
                 ),
@@ -304,57 +317,59 @@ class _TripTrackingScreenState extends State<TripTrackingScreen> {
     );
   }
 
-  void _showTripEndDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => WillPopScope(
-        onWillPop: () async => false,
-        child: BlocProvider.value(
-          value: context.read<TripBloc>(),
-          child: BlocConsumer<TripBloc, TripState>(
-            listener: (context, state) {
-              if (!state.isLoading && state.currentTrip == null) {
-                Navigator.of(dialogContext).pop();
-              }
-            },
-            builder: (context, state) {
-              return AlertDialog(
-                title: const Text('End Trip'),
-                content: state.isLoading
-                    ? const SizedBox(
-                        height: 100,
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    : TripDetailsForm(
-                        onSubmit: (vehicleType, purpose, occupancy) {
-                          final bloc = context.read<TripBloc>();
+ void _showTripEndDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) => WillPopScope(
+      onWillPop: () async => false,
+      child: BlocProvider.value(
+        value: context.read<TripBloc>(),
+        child: BlocConsumer<TripBloc, TripState>(
+          listener: (context, state) {
+            // Once the trip is ended and trip data is updated, we reload the screen
 
-                          bloc
-                            ..add(UpdateTripDetails(
-                              vehicleType: vehicleType,
-                              purpose: purpose,
-                              occupancy: occupancy,
-                            ))
-                            ..add(EndTrip(
-                              endMonument: sampleMonuments.last, // TODO: Detect nearest
-                            ));
+          },
+          builder: (context, state) {
+            return AlertDialog(
+              title: const Text('End Trip'),
+              content: state.isLoading
+                  ? const SizedBox(
+                      height: 100,
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : TripDetailsForm(
+                      onSubmit: (vehicleType, purpose, occupancy) {
+                        final bloc = context.read<TripBloc>();
 
-                          Navigator.of(dialogContext).pop();
-                        },
-                      ),
-                actions: [
-                  if (!state.isLoading)
-                    TextButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(),
-                      child: const Text('Cancel'),
+                        // Update trip details and end trip
+                        bloc
+                          ..add(UpdateTripDetails(
+                            vehicleType: vehicleType,
+                            purpose: purpose,
+                            occupancy: occupancy,
+                          ))
+                          ..add(EndTrip(
+                            endMonument: sampleMonuments.last, // TODO: Detect nearest
+                          ));
+                           Navigator.of(dialogContext).pop();
+                      },
+                      
                     ),
-                ],
-              );
-            },
-          ),
+              actions: [
+                if (!state.isLoading)
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    child: const Text('Cancel'),
+                  ),
+              ],
+            );
+          },
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 }

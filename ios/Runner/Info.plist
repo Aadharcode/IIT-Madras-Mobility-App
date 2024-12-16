@@ -47,6 +47,12 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
+	<key>GOOGLE_MAPS_API_KEY</key>
+	<string>${GOOGLE_MAPS_API_KEY}</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to display the map</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to display the map even when the app is in the background</string>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>

@@ -12,4 +12,10 @@ import GoogleMaps
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+
+  if let apiKey = dotenv.get("GOOGLE_MAPS_API_KEY") {
+      // Set the API key for Google Maps SDK
+      GMSServices.provideAPIKey(apiKey)
+    }
+
 } 

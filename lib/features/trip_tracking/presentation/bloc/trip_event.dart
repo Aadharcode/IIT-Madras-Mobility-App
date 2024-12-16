@@ -88,3 +88,14 @@ class ResetTripState extends TripEvent {
   @override
   List<Object?> get props => [];
 }
+
+class StopTripIfStationary extends TripEvent {
+  final LatLng lastKnownLocation;
+
+  const StopTripIfStationary({
+    required this.lastKnownLocation,
+  });
+
+  @override
+  List<Object?> get props => [lastKnownLocation];
+}

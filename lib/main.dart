@@ -8,11 +8,16 @@ import 'features/authentication/presentation/screens/user_profile_screen.dart';
 import 'features/authentication/presentation/bloc/auth_event.dart';
 import 'features/trip_tracking/data/services/location_service.dart';
 import 'features/trip_tracking/presentation/bloc/trip_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'features/trip_tracking/presentation/screens/trip_tracking_screen.dart';
 
-void main() {
+void main() async {
+  await dotenv.load();
   runApp(const MyApp());
 }
+
+String googleMapsApiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? "";
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

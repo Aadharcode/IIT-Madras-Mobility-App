@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/trip.dart';
-// import '../../data/models/monument.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class TripState extends Equatable {
@@ -14,11 +13,12 @@ class TripState extends Equatable {
   final Set<Circle> monumentZones;
   final bool isIdle;
   final int? idleCountdown;
+  final bool tripEnded;
 
   const TripState({
     this.isIdle = false,
     this.idleCountdown,
-    this.currentTrip,
+    this.currentTrip = null,
     this.pastTrips = const [],
     this.isTracking = false,
     this.isLoading = false,
@@ -26,6 +26,7 @@ class TripState extends Equatable {
     this.currentLocation,
     this.markers = const {},
     this.monumentZones = const {},
+    this.tripEnded = false,
   });
 
   TripState copyWith({
@@ -39,6 +40,7 @@ class TripState extends Equatable {
     Set<Circle>? monumentZones,
     bool? isIdle,
     int? idleCountdown,
+    bool? tripEnded,
   }) {
     return TripState(
       currentTrip: currentTrip ?? this.currentTrip,
@@ -51,6 +53,7 @@ class TripState extends Equatable {
       monumentZones: monumentZones ?? this.monumentZones,
       isIdle: isIdle ?? this.isIdle,
       idleCountdown: idleCountdown ?? this.idleCountdown,
+      tripEnded: tripEnded ?? this.tripEnded,
     );
   }
 
@@ -66,5 +69,6 @@ class TripState extends Equatable {
         monumentZones,
         isIdle,
         idleCountdown,
+        tripEnded,
       ];
-} 
+}

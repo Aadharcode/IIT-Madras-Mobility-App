@@ -65,11 +65,13 @@ final List<Monument> sampleMonuments = [
     id: 'gate1',
     name: 'Main Gate',
     position: const LatLng(12.991214, 80.233276),
+    description: 'Iconic entry point symbolizing IIT Madras excellence and legacy.',
   ),
   Monument(
     id: 'gate2',
     name: 'Krishna Hostel',
     position: const LatLng(12.986681, 80.237733),
+    description: 'Residential block fostering camaraderie among IIT Madras students',
   ),
   // Add more monuments as needed
 ];
